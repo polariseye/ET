@@ -1,49 +1,52 @@
 ﻿namespace ETModel
 {
-	public static class Game
-	{
-		private static Scene scene;
+    public static class Game
+    {
+        private static Scene scene;
 
-		public static Scene Scene
-		{
-			get
-			{
-				if (scene != null)
-				{
-					return scene;
-				}
-				scene = new Scene();
-				scene.AddComponent<TimerComponent>();
-				return scene;
-			}
-		}
+        public static Scene Scene
+        {
+            get
+            {
+                if (scene != null)
+                {
+                    return scene;
+                }
+                scene = new Scene();
+                scene.AddComponent<TimerComponent>();
+                return scene;
+            }
+        }
 
-		private static EventSystem eventSystem;
+        private static EventSystem eventSystem;
 
+        /// <summary>
+        /// 事件系统对象
+        /// </summary>
 		public static EventSystem EventSystem
-		{
-			get
-			{
-				return eventSystem ?? (eventSystem = new EventSystem());
-			}
-		}
+        {
+            get
+            {
+                return eventSystem ?? (eventSystem = new EventSystem());
+            }
+        }
 
-		private static ObjectPool objectPool;
+        private static ObjectPool objectPool;
 
-		public static ObjectPool ObjectPool
-		{
-			get
-			{
-				return objectPool ?? (objectPool = new ObjectPool());
-			}
-		}
+        public static ObjectPool ObjectPool
+        {
+            get
+            {
+                return objectPool ?? (objectPool = new ObjectPool());
+            }
+        }
 
-		public static void Close()
-		{
-			scene.Dispose();
-			scene = null;
-			eventSystem = null;
-			objectPool = null;
-		}
-	}
+        public static void Close()
+        {
+            scene.Dispose();
+            scene = null;
+            eventSystem = null;
+            objectPool = null;
+        }
+    }
 }
