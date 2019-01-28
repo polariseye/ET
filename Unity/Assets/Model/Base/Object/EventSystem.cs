@@ -558,10 +558,12 @@ namespace ETModel
                 Component component;
                 if (!this.allComponents.TryGetValue(instanceId, out component))
                 {
+                    // 如果对应组件已删除，则将在此处从组件实例Id中移除
                     continue;
                 }
                 if (component.IsDisposed)
                 {
+                    // 跳过已释放的组件
                     continue;
                 }
 

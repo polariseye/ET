@@ -14,6 +14,9 @@ namespace ETHotfix
 		}
 	}
 
+    /// <summary>
+    /// 压测组件帮助类
+    /// </summary>
 	public static class BenchmarkComponentHelper
 	{
 		public static void Awake(this BenchmarkComponent self, string address)

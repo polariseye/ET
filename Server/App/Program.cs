@@ -17,8 +17,9 @@ namespace App
             try
             {
                 Game.EventSystem.Add(DLLType.Model, typeof(Game).Assembly);
-                Game.EventSystem.Add(DLLType.Hotfix, DllHelper.GetHotfixAssembly());
+                Game.EventSystem.Add(DLLType.Hotfix, DllHelper.GetHotfixAssembly()); //// 实际只会应用最后一次添加的结果
 
+                // 解析命令行参数
                 Options options = Game.Scene.AddComponent<OptionComponent, string[]>(args).Options;
                 StartConfig startConfig = Game.Scene.AddComponent<StartConfigComponent, string, int>(options.Config, options.AppId).StartConfig;
 
@@ -30,6 +31,7 @@ namespace App
 
                 IdGenerater.AppId = options.AppId;
 
+                // 初始化日志记录相关参数
                 LogManager.Configuration.Variables["appType"] = startConfig.AppType.ToString();
                 LogManager.Configuration.Variables["appId"] = startConfig.AppId.ToString();
                 LogManager.Configuration.Variables["appTypeFormat"] = $"{startConfig.AppType,-8}";
@@ -37,6 +39,7 @@ namespace App
 
                 Log.Info($"server start........................ {startConfig.AppId} {startConfig.AppType}");
 
+                // 加载消息处理组件
                 Game.Scene.AddComponent<OpcodeTypeComponent>();
                 Game.Scene.AddComponent<MessageDispatherComponent>();
 
