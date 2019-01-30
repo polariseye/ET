@@ -30,6 +30,7 @@ namespace ETHotfix
 
     /// <summary>
     /// 消息分发组件
+    /// 分发给具体actor处理函数处理
     /// </summary>
     public static class MessageDispatherComponentEx
     {
@@ -77,6 +78,12 @@ namespace ETHotfix
             }
         }
 
+        /// <summary>
+        /// 注册一个处理对象
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="opcode"></param>
+        /// <param name="handler"></param>
         public static void RegisterHandler(this MessageDispatherComponent self, ushort opcode, IMHandler handler)
         {
             if (!self.Handlers.ContainsKey(opcode))
@@ -86,6 +93,12 @@ namespace ETHotfix
             self.Handlers[opcode].Add(handler);
         }
 
+        /// <summary>
+        /// 消息处理
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="session"></param>
+        /// <param name="messageInfo"></param>
         public static void Handle(this MessageDispatherComponent self, Session session, MessageInfo messageInfo)
         {
             List<IMHandler> actions;

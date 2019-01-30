@@ -22,16 +22,34 @@ namespace ETModel
     }
 
     /// <summary>
-    /// 远端会话类
+    /// 远端会话类抽象类
     /// </summary>
     public sealed class Session : Entity
     {
+        /// <summary>
+        /// 全局唯一的RPC包Id
+        /// 用于为每个消息添加唯一Id，以便把请求和应答关联
+        /// </summary>
         private static int RpcId { get; set; }
+
+        /// <summary>
+        /// 网络连接对象
+        /// </summary>
         private AChannel channel;
 
+        /// <summary>
+        /// 等待应答的请求回调处理
+        /// </summary>
         private readonly Dictionary<int, Action<IResponse>> requestCallback = new Dictionary<int, Action<IResponse>>();
+
+        /// <summary>
+        /// 发消息用的一个buffer缓存变量，用于减少GC
+        /// </summary>
         private readonly List<byte[]> byteses = new List<byte[]>() { new byte[1], new byte[2] };
 
+        /// <summary>
+        /// 具体网络连接组件
+        /// </summary>
         public NetworkComponent Network
         {
             get
@@ -40,6 +58,9 @@ namespace ETModel
             }
         }
 
+        /// <summary>
+        /// 当前连接的错误码
+        /// </summary>
         public int Error
         {
             get
@@ -52,6 +73,10 @@ namespace ETModel
             }
         }
 
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="aChannel">连接对象</param>
         public void Awake(AChannel aChannel)
         {
             this.channel = aChannel;
@@ -64,6 +89,9 @@ namespace ETModel
             channel.ReadCallback += this.OnRead;
         }
 
+        /// <summary>
+        /// 资源销毁处理
+        /// </summary>
         public override void Dispose()
         {
             if (this.IsDisposed)
@@ -91,11 +119,17 @@ namespace ETModel
             this.requestCallback.Clear();
         }
 
+        /// <summary>
+        /// 会话开启处理
+        /// </summary>
         public void Start()
         {
             this.channel.Start();
         }
 
+        /// <summary>
+        /// 远端地址
+        /// </summary>
         public IPEndPoint RemoteAddress
         {
             get
@@ -104,6 +138,9 @@ namespace ETModel
             }
         }
 
+        /// <summary>
+        /// 网络连接类型
+        /// </summary>
         public ChannelType ChannelType
         {
             get
@@ -112,6 +149,9 @@ namespace ETModel
             }
         }
 
+        /// <summary>
+        /// 当前连接的数据流
+        /// </summary>
         public MemoryStream Stream
         {
             get
@@ -120,6 +160,10 @@ namespace ETModel
             }
         }
 
+        /// <summary>
+        /// 收到数据的处理
+        /// </summary>
+        /// <param name="memoryStream"></param>
         public void OnRead(MemoryStream memoryStream)
         {
             try
@@ -132,6 +176,10 @@ namespace ETModel
             }
         }
 
+        /// <summary>
+        /// 处理收到数据的事件
+        /// </summary>
+        /// <param name="memoryStream"></param>
         private void Run(MemoryStream memoryStream)
         {
             memoryStream.Seek(Packet.MessageIndex, SeekOrigin.Begin);
@@ -189,6 +237,11 @@ namespace ETModel
             action(response);
         }
 
+        /// <summary>
+        /// 阻塞式地调用Actor
+        /// </summary>
+        /// <param name="request">请求的具体对象</param>
+        /// <returns></returns>
         public Task<IResponse> Call(IRequest request)
         {
             int rpcId = ++RpcId;
@@ -216,6 +269,12 @@ namespace ETModel
             return tcs.Task;
         }
 
+        /// <summary>
+        /// 以可取消的方式阻塞式地调用Actor
+        /// </summary>
+        /// <param name="request">请求参数对象</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<IResponse> Call(IRequest request, CancellationToken cancellationToken)
         {
             int rpcId = ++RpcId;
@@ -245,11 +304,19 @@ namespace ETModel
             return tcs.Task;
         }
 
+        /// <summary>
+        /// 直接发送一个消息(发送后直接返回)
+        /// </summary>
+        /// <param name="message">消息对象</param>
         public void Send(IMessage message)
         {
             this.Send(0x00, message);
         }
 
+        /// <summary>
+        /// 应答一个消息
+        /// </summary>
+        /// <param name="message">应答的消息对象</param>
         public void Reply(IResponse message)
         {
             if (this.IsDisposed)
@@ -260,6 +327,11 @@ namespace ETModel
             this.Send(0x01, message);
         }
 
+        /// <summary>
+        /// 发送消息
+        /// </summary>
+        /// <param name="flag">消息第一个字节的标记， flag第一位为1表示这是rpc返回消息,否则交由MessageDispatcher分发</param>
+        /// <param name="message">消息对象</param>
         public void Send(byte flag, IMessage message)
         {
             OpcodeTypeComponent opcodeTypeComponent = this.Network.Entity.GetComponent<OpcodeTypeComponent>();
@@ -268,6 +340,12 @@ namespace ETModel
             Send(flag, opcode, message);
         }
 
+        /// <summary>
+        /// 发送一个消息
+        /// </summary>
+        /// <param name="flag">消息第一个字节的标记， flag第一位为1表示这是rpc返回消息,否则交由MessageDispatcher分发</param>
+        /// <param name="opcode">消息类型码</param>
+        /// <param name="message">消息对象</param>
         public void Send(byte flag, ushort opcode, object message)
         {
             if (this.IsDisposed)
@@ -317,6 +395,10 @@ namespace ETModel
             this.Send(stream);
         }
 
+        /// <summary>
+        /// 直接发送一个数据流
+        /// </summary>
+        /// <param name="stream"></param>
         public void Send(MemoryStream stream)
         {
             channel.Send(stream);

@@ -3,72 +3,110 @@ using System.Linq;
 
 namespace ETModel
 {
-	[ObjectSystem]
-	public class PlayerComponentSystem : AwakeSystem<PlayerComponent>
-	{
-		public override void Awake(PlayerComponent self)
-		{
-			self.Awake();
-		}
-	}
-	
-	public class PlayerComponent : Component
-	{
-		public static PlayerComponent Instance { get; private set; }
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    [ObjectSystem]
+    public class PlayerComponentSystem : AwakeSystem<PlayerComponent>
+    {
+        public override void Awake(PlayerComponent self)
+        {
+            self.Awake();
+        }
+    }
 
-		public Player MyPlayer;
-		
-		private readonly Dictionary<long, Player> idPlayers = new Dictionary<long, Player>();
+    /// <summary>
+    /// 玩家管理组件
+    /// </summary>
+    public class PlayerComponent : Component
+    {
+        /// <summary>
+        /// 组件实例
+        /// </summary>
+        public static PlayerComponent Instance { get; private set; }
 
-		public void Awake()
-		{
-			Instance = this;
-		}
-		
-		public void Add(Player player)
-		{
-			this.idPlayers.Add(player.Id, player);
-		}
+        public Player MyPlayer;
 
-		public Player Get(long id)
-		{
-			this.idPlayers.TryGetValue(id, out Player gamer);
-			return gamer;
-		}
+        /// <summary>
+        /// 玩家Id到玩家对象的映射
+        /// </summary>
+        private readonly Dictionary<long, Player> idPlayers = new Dictionary<long, Player>();
 
-		public void Remove(long id)
-		{
-			this.idPlayers.Remove(id);
-		}
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        public void Awake()
+        {
+            Instance = this;
+        }
 
-		public int Count
-		{
-			get
-			{
-				return this.idPlayers.Count;
-			}
-		}
+        /// <summary>
+        /// 添加一个玩家
+        /// </summary>
+        /// <param name="player"></param>
+        public void Add(Player player)
+        {
+            this.idPlayers.Add(player.Id, player);
+        }
 
-		public Player[] GetAll()
-		{
-			return this.idPlayers.Values.ToArray();
-		}
+        /// <summary>
+        /// 通过玩家Id获取玩家对象
+        /// </summary>
+        /// <param name="id">玩家Id</param>
+        /// <returns></returns>
+        public Player Get(long id)
+        {
+            this.idPlayers.TryGetValue(id, out Player gamer);
+            return gamer;
+        }
 
-		public override void Dispose()
-		{
-			if (this.IsDisposed)
-			{
-				return;
-			}
-			
-			base.Dispose();
+        /// <summary>
+        /// 删除一个玩家
+        /// </summary>
+        /// <param name="id">玩家Id</param>
+        public void Remove(long id)
+        {
+            this.idPlayers.Remove(id);
+        }
 
-			foreach (Player player in this.idPlayers.Values)
-			{
-				player.Dispose();
-			}
+        /// <summary>
+        /// 当前玩家数量
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                return this.idPlayers.Count;
+            }
+        }
 
-			Instance = null;
-		}
-	}
+        /// <summary>
+        /// 获取所有玩家
+        /// </summary>
+        /// <returns></returns>
+        public Player[] GetAll()
+        {
+            return this.idPlayers.Values.ToArray();
+        }
+
+        /// <summary>
+        /// 资源销毁
+        /// </summary>
+        public override void Dispose()
+        {
+            if (this.IsDisposed)
+            {
+                return;
+            }
+
+            base.Dispose();
+
+            foreach (Player player in this.idPlayers.Values)
+            {
+                player.Dispose();
+            }
+
+            Instance = null;
+        }
+    }
 }

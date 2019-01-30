@@ -1,33 +1,52 @@
 ﻿namespace ETModel
 {
-	[ObjectSystem]
-	public class PlayerSystem : AwakeSystem<Player, string>
-	{
-		public override void Awake(Player self, string a)
-		{
-			self.Awake(a);
-		}
-	}
+    /// <summary>
+    /// 玩家加载
+    /// </summary>
+    [ObjectSystem]
+    public class PlayerSystem : AwakeSystem<Player, string>
+    {
+        public override void Awake(Player self, string a)
+        {
+            self.Awake(a);
+        }
+    }
 
-	public sealed class Player : Entity
-	{
-		public string Account { get; private set; }
-		
-		public long UnitId { get; set; }
+    /// <summary>
+    /// 玩家类
+    /// </summary>
+    public sealed class Player : Entity
+    {
+        /// <summary>
+        /// 用户Id
+        /// </summary>
+        public string Account { get; private set; }
 
-		public void Awake(string account)
-		{
-			this.Account = account;
-		}
-		
-		public override void Dispose()
-		{
-			if (this.IsDisposed)
-			{
-				return;
-			}
+        /// <summary>
+        /// 所在节点Id
+        /// </summary>
+        public long UnitId { get; set; }
 
-			base.Dispose();
-		}
-	}
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="account"></param>
+        public void Awake(string account)
+        {
+            this.Account = account;
+        }
+
+        /// <summary>
+        /// 资源销毁
+        /// </summary>
+        public override void Dispose()
+        {
+            if (this.IsDisposed)
+            {
+                return;
+            }
+
+            base.Dispose();
+        }
+    }
 }
